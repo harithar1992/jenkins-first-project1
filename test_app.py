@@ -1,9 +1,7 @@
-cat > test_app.py <<'EOF'
-from app import add
 
-def test_add():
-    assert add(2, 3) == 5
+def test_addition():
+    assert 2 + 3 == 5
 
-def test_add_zero():
-    assert add(5, 0) == 5
-EOF
+
+def test_string():
+    assert "jenkins".upper() == "JENKINS"

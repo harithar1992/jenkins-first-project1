@@ -1,13 +1,18 @@
-cd ~/jenkins-ci-project
 
-cat > Jenkinsfile <<'EOF'
 pipeline {
     agent any
 
     stages {
         stage('Checkout') {
             steps {
-                echo 'Source code checked out from GitHub'
+                checkout scm
+            }
+        }
+
+        stage('Check Python') {
+            steps {
+                sh 'python3 --version'
+                sh 'python3 -m pip --version'
             }
         }
 
@@ -16,31 +21,29 @@ pipeline {
                 sh '''
                     python3 -m venv .venv
                     .venv/bin/python -m pip install --upgrade pip
-                    .venv/bin/pip install -r requirements.txt
+                    if [ -f requirements.txt ]; then
+                        .venv/bin/python -m pip install -r requirements.txt
+                    fi
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '.venv/bin/python -m pytest -v'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'python3 app.py'
+                sh '''
+                    .venv/bin/python -m pytest -v
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'SUCCESS: CI pipeline completed!'
+            echo 'CI pipeline completed successfully!'
         }
         failure {
-            echo 'FAILURE: Check the console output.'
+            echo 'CI pipeline failed. Check the console output.'
         }
     }
 }
-EOF
+
